@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, RefreshControl, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Repeat } from "lucide-react-native";
 import { useAuthStore } from "@/store/authStore";
 import { fetchMyTrades, type Trade } from "@/lib/tradesApi";
@@ -11,9 +11,12 @@ const statusColors: Record<Trade["status"], { bg: string; text: string; label: s
   pending: { bg: "bg-accent/15", text: "text-accent", label: "Pending" },
   accepted: { bg: "bg-secondary/15", text: "text-secondary", label: "Accepted" },
   countered: { bg: "bg-secondary/15", text: "text-secondary", label: "Countered" },
+  meetup_pending: { bg: "bg-secondary/15", text: "text-secondary", label: "Meetup Pending" },
+  meetup_confirmed: { bg: "bg-secondary/15", text: "text-secondary", label: "Meetup Confirmed" },
   completed: { bg: "bg-success/15", text: "text-success", label: "Completed" },
   rejected: { bg: "bg-danger/15", text: "text-danger", label: "Rejected" },
   cancelled: { bg: "bg-danger/15", text: "text-danger", label: "Cancelled" },
+  disputed: { bg: "bg-danger/15", text: "text-danger", label: "Disputed" },
 };
 
 function TradeCard({ trade }: { trade: Trade }) {
@@ -26,7 +29,6 @@ function TradeCard({ trade }: { trade: Trade }) {
           <Text className={`text-xs font-medium ${colors.text}`}>{colors.label}</Text>
         </View>
       </View>
-      {trade.message ? <Text className="text-sm text-ink">{trade.message}</Text> : null}
       <Text className="mt-2 text-xs text-muted">Updated {trade.updatedAt}</Text>
     </View>
   );
@@ -81,7 +83,11 @@ export default function TradesScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={() => loadTrades(true)} tintColor="#243B53" />
           }
-          renderItem={({ item }) => <TradeCard trade={item} />}
+          renderItem={({ item }) => (
+            <Pressable onPress={() => router.push(`/trade/${item.id}`)}>
+              <TradeCard trade={item} />
+            </Pressable>
+          )}
           ListEmptyComponent={
             <EmptyState
               icon={Repeat}

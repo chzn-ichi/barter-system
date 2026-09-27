@@ -151,3 +151,87 @@ export async function fetchMyListings(ownerId: string): Promise<Listing[]> {
     };
   });
 }
+
+
+export type ListingDetail = Listing & {
+  description: string | null;
+  hasFlaw: boolean;
+  flawDescription: string | null;
+  photoUrls: string[];
+};
+
+export async function fetchListingById(id: string): Promise<ListingDetail> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      id,
+      title,
+      category,
+      condition,
+      description,
+      has_flaw,
+      flaw_description,
+      wants_in_exchange,
+      created_at,
+      owner_id,
+      profiles ( name ),
+      listing_photos ( url, position )
+    `
+    )
+    .eq("id", id)
+    .single();
+
+  if (error || !data) throw new Error("Could not load this listing.");
+
+  const photos = (data.listing_photos ?? []).sort((a: any, b: any) => a.position - b.position);
+
+  return {
+    id: data.id,
+    title: data.title,
+    category: data.category,
+    condition: data.condition,
+    description: data.description,
+    hasFlaw: data.has_flaw,
+    flawDescription: data.flaw_description,
+    wantsInExchange: data.wants_in_exchange,
+    imageUrl: photos[0]?.url ?? null,
+    photoUrls: photos.map((p: any) => p.url),
+    ownerName: (data.profiles as any)?.name ?? "Unknown",
+    ownerId: data.owner_id,
+    createdAt: data.created_at,
+  };
+}
+
+
+export async function fetchActiveListingsByOwner(ownerId: string): Promise<Listing[]> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      id, title, category, condition, wants_in_exchange, created_at, owner_id,
+      profiles ( name ),
+      listing_photos ( url, position )
+      `
+    )
+    .eq("owner_id", ownerId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error("Could not load listings.");
+
+  return (data ?? []).map((row: any) => {
+    const photos = (row.listing_photos ?? []).sort((a: any, b: any) => a.position - b.position);
+    return {
+      id: row.id,
+      title: row.title,
+      category: row.category,
+      condition: row.condition,
+      wantsInExchange: row.wants_in_exchange,
+      imageUrl: photos[0]?.url ?? null,
+      ownerName: row.profiles?.name ?? "Unknown",
+      ownerId: row.owner_id,
+      createdAt: row.created_at,
+    };
+  });
+}

@@ -46,11 +46,13 @@ export default function TabsLayout() {
               <Plus color="#FFFFF8" size={22} />
             </View>
           ),
-          tabBarButton: (props) => (
+          tabBarButton: ({ children, style }) => (
             <Pressable
-              {...props}
               onPress={() => router.push("/listing/create")}
-            />
+              style={style}
+            >
+              {children}
+            </Pressable>
           ),
         }}
       />

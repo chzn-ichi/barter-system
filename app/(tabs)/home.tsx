@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -128,7 +128,7 @@ export default function HomeScreen() {
         ListHeaderComponent={header}
         renderItem={({ item }) => (
           <View className="w-[47%]">
-            <ListingCard listing={item} onPress={() => {}} />
+            <ListingCard listing={item} onPress={() => router.push(`/listing/${item.id}`)} />
           </View>
         )}
         ListEmptyComponent={
