@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Image,
   KeyboardAvoidingView,
@@ -31,6 +32,7 @@ type Draft = {
   hasFlaw: boolean;
   flawDescription: string;
   wantsInExchange: string;
+  openToOffers: boolean;
   bundleAllowed: boolean;
 };
 
@@ -43,6 +45,7 @@ const initialDraft: Draft = {
   hasFlaw: false,
   flawDescription: "",
   wantsInExchange: "",
+  openToOffers: false,
   bundleAllowed: false,
 };
 
@@ -55,6 +58,7 @@ export default function CreateListingScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   function update<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
@@ -67,7 +71,7 @@ export default function CreateListingScreen() {
       case 1:
         return !!draft.title.trim() && !!draft.category && !!draft.condition;
       case 2:
-        return !!draft.wantsInExchange.trim();
+        return draft.openToOffers || !!draft.wantsInExchange.trim();
       default:
         return true;
     }
@@ -139,6 +143,7 @@ export default function CreateListingScreen() {
         hasFlaw: draft.hasFlaw,
         flawDescription: draft.flawDescription.trim(),
         wantsInExchange: draft.wantsInExchange.trim(),
+        openToOffers: draft.openToOffers,
         bundleAllowed: draft.bundleAllowed,
         photoUrls: uploadedUrls,
       });
@@ -299,19 +304,36 @@ export default function CreateListingScreen() {
 
         {step === 2 ? (
           <View>
-            <Text className="mb-1 text-lg font-semibold text-ink">What do you want in exchange?</Text>
+            <Text className="mb-1 text-lg font-semibold text-ink">What would you like in return?</Text>
             <Text className="mb-4 text-sm text-muted">
-              Be specific, or general — this helps others find you when browsing.
+              Name something specific, or stay open and let people surprise you.
             </Text>
-            <Input
-              label="Wanted in exchange"
-              placeholder="e.g. Film camera or wireless headphones"
-              multiline
-              numberOfLines={3}
-              style={{ height: 70, textAlignVertical: "top", paddingTop: 10 }}
-              value={draft.wantsInExchange}
-              onChangeText={(v) => update("wantsInExchange", v)}
-            />
+
+            <View className="mb-4 flex-row items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+              <View className="flex-1 pr-3">
+                <Text className="text-sm text-ink">Open to offers</Text>
+                <Text className="text-xs text-muted">Not sure yet? Let people propose something.</Text>
+              </View>
+              <Switch
+                value={draft.openToOffers}
+                onValueChange={(v) => update("openToOffers", v)}
+                trackColor={{ false: "#DDD6C8", true: "#243B53" }}
+                thumbColor="#FFFFF8"
+              />
+            </View>
+
+            {!draft.openToOffers ? (
+              <Input
+                label="Wanted in exchange"
+                placeholder="e.g. Film camera or wireless headphones"
+                multiline
+                numberOfLines={3}
+                style={{ height: 70, textAlignVertical: "top", paddingTop: 10 }}
+                value={draft.wantsInExchange}
+                onChangeText={(v) => update("wantsInExchange", v)}
+              />
+            ) : null}
+
             <View className="flex-row items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
               <View className="flex-1 pr-3">
                 <Text className="text-sm text-ink">Bundle allowed</Text>
@@ -344,13 +366,16 @@ export default function CreateListingScreen() {
             <ReviewRow label="Condition" value={draft.condition} />
             {draft.description ? <ReviewRow label="Description" value={draft.description} /> : null}
             {draft.hasFlaw ? <ReviewRow label="Flaw" value={draft.flawDescription || "Not described"} /> : null}
-            <ReviewRow label="Wants in Exchange" value={draft.wantsInExchange} />
+            <ReviewRow label="In return" value={draft.openToOffers ? "Open to offers" : draft.wantsInExchange} />
             <ReviewRow label="Bundle Allowed" value={draft.bundleAllowed ? "Yes" : "No"} />
           </View>
         ) : null}
       </ScrollView>
 
-      <View className="border-t border-border bg-background px-5 py-4">
+      <View
+        className="border-t border-border bg-background px-5 pt-4"
+        style={{ paddingBottom: insets.bottom + 16 }}
+      >
         {uploadStatus ? <Text className="mb-2 text-center text-xs text-muted">{uploadStatus}</Text> : null}
         <Button
           label={step === STEPS.length - 1 ? "Post Listing" : "Next"}

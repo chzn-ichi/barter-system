@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScrollView, Pressable, Image } from "react-native";
-import { Check } from "lucide-react-native";
+import { Check, Plus } from "lucide-react-native";
 import { fetchMyListings, type Listing } from "@/lib/listingsApi";
 import { proposeTrade } from "@/lib/tradesApi";
 import { useAuthStore } from "@/store/authStore";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PackageX } from "lucide-react-native";
+import { AddItemModal } from "@/components/trade/AddItemModal";
 
 export default function ProposeTradeScreen() {
   const { targetListingId, targetTitle, recipientId } = useLocalSearchParams<{
@@ -27,6 +28,7 @@ export default function ProposeTradeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -83,8 +85,10 @@ export default function ProposeTradeScreen() {
 
   return (
     <View className="flex-1 bg-background px-5 py-6">
-      <Text className="mb-1 text-2xl font-bold text-ink">Propose Trade</Text>
-      <Text className="mb-6 text-base text-muted">For: {targetTitle}</Text>
+      <Text className="mb-1 text-2xl font-bold text-ink">Make an offer</Text>
+      <Text className="mb-6 text-base text-muted">
+        For {targetTitle}. They can accept, counter, or decline.
+      </Text>
 
       {error ? <ErrorBanner message={error} /> : null}
 
@@ -125,6 +129,13 @@ export default function ProposeTradeScreen() {
         </ScrollView>
       )}
 
+      {user ? (
+        <Pressable onPress={() => setAddModalOpen(true)} className="mb-4 flex-row items-center gap-1.5">
+          <Plus size={14} color="#243B53" />
+          <Text className="text-sm text-primary">Add something else</Text>
+        </Pressable>
+      ) : null}
+
       <Input
         label="Message (optional)"
         placeholder="Would you be interested in this?"
@@ -136,6 +147,18 @@ export default function ProposeTradeScreen() {
       />
 
       <Button label="Send Proposal" onPress={handleSend} loading={submitting} disabled={myListings.length === 0} />
+
+      {user ? (
+        <AddItemModal
+          visible={addModalOpen}
+          onClose={() => setAddModalOpen(false)}
+          ownerId={user.id}
+          onCreated={(listing) => {
+            setMyListings((prev) => [...prev, listing as Listing]);
+            toggleSelect(listing.id);
+          }}
+        />
+      ) : null}
     </View>
   );
 }

@@ -2,10 +2,32 @@ import { Tabs, useRouter } from "expo-router";
 import { Home, Plus, Repeat, Shuffle, User } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
+import { hasActionableTrades } from "@/lib/tradesApi";
+import { useAuthStore } from "@/store/authStore";
 
 export default function TabsLayout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const user = useAuthStore((s) => s.user);
+  const [hasAction, setHasAction] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    hasActionableTrades(user.id).then((result) => {
+      if (active) setHasAction(result);
+    });
+    const interval = setInterval(() => {
+      hasActionableTrades(user.id).then((result) => {
+        if (active) setHasAction(result);
+      });
+    }, 15000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [user]);
 
   return (
     <Tabs
@@ -26,7 +48,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: "Market",
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
@@ -56,11 +78,18 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+    <Tabs.Screen
         name="trades"
         options={{
           title: "Trades",
-          tabBarIcon: ({ color, size }) => <Repeat color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <Repeat color={color} size={size} />
+              {hasAction ? (
+                <View className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-danger" />
+              ) : null}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen

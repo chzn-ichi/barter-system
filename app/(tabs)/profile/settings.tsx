@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Alert, ScrollView, Switch, Text, View } from "react-native";
+import { ScrollView, Switch, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 function SettingRow({
   label,
@@ -32,19 +33,18 @@ export default function SettingsScreen() {
   const [pushEnabled, setPushEnabled] = useState(true);
   const [tradeEmails, setTradeEmails] = useState(true);
   const [showLocation, setShowLocation] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  function handleLogout() {
-    Alert.alert("Log out?", "You'll need to log in again to access your account.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Log Out",
-        style: "destructive",
-        onPress: async () => {
-          await logout();
-          router.replace("/(auth)/login");
-        },
-      },
-    ]);
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await logout();
+      router.replace("/(auth)/login");
+    } finally {
+      setLoggingOut(false);
+      setConfirmLogout(false);
+    }
   }
 
   return (
@@ -57,8 +57,19 @@ export default function SettingsScreen() {
       <SettingRow label="Show my general location" value={showLocation} onChange={setShowLocation} />
 
       <View className="mt-10">
-        <Button label="Log Out" variant="outline" onPress={handleLogout} />
+        <Button label="Log Out" variant="outline" onPress={() => setConfirmLogout(true)} />
       </View>
+
+      <ConfirmModal
+        visible={confirmLogout}
+        title="Log out?"
+        message="You'll need to log in again to access your account."
+        confirmLabel="Log Out"
+        destructive
+        loading={loggingOut}
+        onCancel={() => setConfirmLogout(false)}
+        onConfirm={handleLogout}
+      />
     </ScrollView>
   );
 }

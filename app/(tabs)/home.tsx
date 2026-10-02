@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
+import { useAuthStore } from "@/store/authStore";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,12 +18,16 @@ import { fetchActiveListings, type Listing } from "@/lib/listingsApi";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+
+
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const user = useAuthStore((s) => s.user);
 
   const loadListings = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -58,7 +63,7 @@ export default function HomeScreen() {
   const header = (
     <View className="px-5">
       <View className="mb-4 flex-row items-center justify-between pt-2">
-        <Text className="text-2xl font-bold text-primary">SwapQuest</Text>
+        <Text className="text-2xl font-bold text-primary">Market</Text>
         <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-card border border-border">
           <Bell size={20} color="#243B53" />
         </Pressable>
@@ -98,7 +103,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       <Text className="mb-3 text-lg font-semibold text-ink">
-        {activeCategory === "All" ? "All Listings" : activeCategory}
+        {activeCategory === "All" ? "Fresh on the stalls" : activeCategory}
       </Text>
     </View>
   );
@@ -135,8 +140,8 @@ export default function HomeScreen() {
           listings.length === 0 ? (
             <EmptyState
               icon={PackageSearch}
-              title="No listings yet"
-              subtitle="Be the first to post something for trade — tap the + button below to create a listing."
+              title="The market's quiet today"
+              subtitle="Be the first to post something for trade. Tap the + button to create a listing."
             />
           ) : (
             <View className="items-center px-5 py-16">

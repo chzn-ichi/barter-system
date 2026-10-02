@@ -34,7 +34,8 @@
         {
           "photosPermission": "SwapQuest needs access to your photos so you can add pictures to your listings."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

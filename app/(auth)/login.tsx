@@ -40,7 +40,7 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerClassName="flex-grow justify-center px-6 py-10" keyboardShouldPersistTaps="handled">
         <Text className="mb-1 text-3xl font-bold text-primary">SwapQuest</Text>
-        <Text className="mb-8 text-base text-muted">Your stuff has another story.</Text>
+        <Text className="mb-8 font-hand text-lg text-muted">Your stuff has another story.</Text>
 
         {error ? <ErrorBanner message={error} /> : null}
 

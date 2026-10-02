@@ -15,6 +15,10 @@ module.exports = {
         border: "#DDD6C8",
         danger: "#B3261E",
         success: "#2E7D32",
+        seal: "#A8412F",
+      },
+      fontFamily: {
+        hand: ["DMSans_500Medium"],
       },
     },
   },
