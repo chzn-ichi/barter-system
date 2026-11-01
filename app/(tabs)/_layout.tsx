@@ -33,11 +33,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#243B53",
-        tabBarInactiveTintColor: "#6B7280",
+        tabBarActiveTintColor: "#0F2A4A",
+        tabBarInactiveTintColor: "#64748B",
         tabBarStyle: {
-          backgroundColor: "#FFFFF8",
-          borderTopColor: "#DDD6C8",
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#E2E8F0",
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom + 8,
           paddingTop: 8,
@@ -65,7 +65,7 @@ export default function TabsLayout() {
           title: "",
           tabBarIcon: () => (
             <View className="h-11 w-11 items-center justify-center rounded-full bg-primary -mt-4 border-4 border-background">
-              <Plus color="#FFFFF8" size={22} />
+              <Plus color="#FFFFFF" size={22} />
             </View>
           ),
           tabBarButton: ({ children, style }) => (

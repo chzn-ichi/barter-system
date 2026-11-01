@@ -7,7 +7,7 @@ export default function ListingLayout() {
       screenOptions={{
         headerShown: false,
         presentation: Platform.OS === "web" ? "card" : "modal",
-        contentStyle: { backgroundColor: "#F7F3EA" },
+        contentStyle: { backgroundColor: "#FFFFFF" },
       }}
     >
       <Stack.Screen name="create" />

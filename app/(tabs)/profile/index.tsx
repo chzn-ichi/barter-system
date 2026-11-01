@@ -136,7 +136,7 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <ScrollView contentContainerClassName="pb-10">
         <View
-          className="bg-accent"
+          className="bg-primary"
           style={{
             height: 150,
             borderBottomLeftRadius: 40,
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
               onPress={() => router.push("/(tabs)/profile/settings")}
               className="h-9 w-9 items-center justify-center rounded-full bg-card/20"
             >
-              <Settings size={18} color="#FFFFF8" />
+              <Settings size={18} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>
@@ -187,7 +187,7 @@ export default function ProfileScreen() {
 
         {loading ? (
           <View className="items-center py-8">
-            <ActivityIndicator color="#243B53" />
+            <ActivityIndicator color="#0F2A4A" />
           </View>
         ) : (
           <>
@@ -211,14 +211,14 @@ export default function ProfileScreen() {
                           <Image source={{ uri: item.imageUrl }} className="h-full w-full" resizeMode="cover" />
                         ) : (
                           <View className="h-full w-full items-center justify-center">
-                            <Package size={20} color="#6B7280" />
+                            <Package size={20} color="#64748B" />
                           </View>
                         )}
                         <Pressable
                           onPress={() => handleRemoveListing(item)}
                           className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full bg-ink/60"
                         >
-                          <Trash2 size={14} color="#FFFFF8" />
+                          <Trash2 size={14} color="#FFFFFF" />
                         </Pressable>
                       </View>
                       <Text numberOfLines={1} className="mt-1.5 text-xs text-ink">
@@ -237,7 +237,7 @@ export default function ProfileScreen() {
                   onPress={() => setAddModalOpen(true)}
                   className="h-8 w-8 items-center justify-center rounded-full border border-border bg-card"
                 >
-                  <Plus size={16} color="#243B53" />
+                  <Plus size={16} color="#0F2A4A" />
                 </Pressable>
               </View>
               {wantedItems.length === 0 ? (
@@ -273,12 +273,12 @@ export default function ProfileScreen() {
             <View className="mb-4 flex-row items-center justify-between">
               <Text className="text-lg font-semibold text-ink">Pin a Wanted Note</Text>
               <Pressable onPress={() => setAddModalOpen(false)}>
-                <X size={20} color="#263238" />
+                <X size={20} color="#0F172A" />
               </Pressable>
             </View>
             <TextInput
               placeholder="e.g. Film Camera"
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#64748B"
               value={newWantedName}
               onChangeText={setNewWantedName}
               autoFocus

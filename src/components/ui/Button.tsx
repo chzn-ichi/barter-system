@@ -32,7 +32,7 @@ export function Button({ label, onPress, variant = "primary", loading, disabled 
       style={({ pressed }) => ({ opacity: pressed && !isDisabled ? 0.85 : 1 })}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? "#FFFFF8" : "#243B53"} />
+        <ActivityIndicator color={variant === "primary" ? "#FFFFFF" : "#0F2A4A"} />
       ) : (
         <Text className={textStyles}>{label}</Text>
       )}

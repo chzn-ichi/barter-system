@@ -178,11 +178,11 @@ export default function CreateListingScreen() {
     <KeyboardAvoidingView className="flex-1 bg-background" behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View className="flex-row items-center justify-between px-5 pb-2 pt-4">
         <Pressable onPress={handleBack} className="h-9 w-9 items-center justify-center" disabled={submitting}>
-          <ChevronLeft size={24} color="#263238" />
+          <ChevronLeft size={24} color="#0F170A" />
         </Pressable>
         <Text className="text-base font-semibold text-ink">{STEPS[step]}</Text>
         <Pressable onPress={() => router.back()} className="h-9 w-9 items-center justify-center" disabled={submitting}>
-          <X size={20} color="#263238" />
+          <X size={20} color="#0F170A" />
         </Pressable>
       </View>
 
@@ -214,7 +214,7 @@ export default function CreateListingScreen() {
                     onPress={() => removePhoto(i)}
                     className="absolute -right-1.5 -top-1.5 h-6 w-6 items-center justify-center rounded-full bg-ink"
                   >
-                    <X size={13} color="#FFFFF8" />
+                    <X size={13} color="#FFFFFF" />
                   </Pressable>
                 </View>
               ))}
@@ -222,7 +222,7 @@ export default function CreateListingScreen() {
                 onPress={pickPhoto}
                 className="h-24 w-24 items-center justify-center rounded-lg border border-dashed border-border bg-card"
               >
-                <Camera size={20} color="#6B7280" />
+                <Camera size={20} color="#64748B" />
                 <Text className="mt-1 text-xs text-muted">Add photo</Text>
               </Pressable>
             </View>
@@ -287,8 +287,8 @@ export default function CreateListingScreen() {
               <Switch
                 value={draft.hasFlaw}
                 onValueChange={(v) => update("hasFlaw", v)}
-                trackColor={{ false: "#DDD6C8", true: "#243B53" }}
-                thumbColor="#FFFFF8"
+                trackColor={{ false: "#E2E8F0", true: "#0F2A4A" }}
+                thumbColor="#FFFFFF"
               />
             </View>
             {draft.hasFlaw ? (
@@ -317,8 +317,8 @@ export default function CreateListingScreen() {
               <Switch
                 value={draft.openToOffers}
                 onValueChange={(v) => update("openToOffers", v)}
-                trackColor={{ false: "#DDD6C8", true: "#243B53" }}
-                thumbColor="#FFFFF8"
+                trackColor={{ false: "#E2E8F0", true: "#0F2A4A" }}
+                thumbColor="#FFFFFF"
               />
             </View>
 
@@ -342,8 +342,8 @@ export default function CreateListingScreen() {
               <Switch
                 value={draft.bundleAllowed}
                 onValueChange={(v) => update("bundleAllowed", v)}
-                trackColor={{ false: "#DDD6C8", true: "#243B53" }}
-                thumbColor="#FFFFF8"
+                trackColor={{ false: "#E2E8F0", true: "#0F2A4A" }}
+                thumbColor="#FFFFFF"
               />
             </View>
           </View>

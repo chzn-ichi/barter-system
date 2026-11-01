@@ -34,7 +34,7 @@ export function ListingCard({
           <Image source={{ uri: listing.imageUrl }} className="h-full w-full" resizeMode="cover" />
         ) : (
           <View className="h-full w-full items-center justify-center">
-            <ImageOff size={24} color="#6B7280" />
+            <ImageOff size={24} color="#64748B" />
           </View>
         )}
 
@@ -56,7 +56,7 @@ export function ListingCard({
         {wantsText ? (
           <View className="flex-row items-start gap-1.5 rounded-lg bg-accent/10 px-2 py-1.5">
             <View className="mt-1">
-              <ArrowLeftRight size={12} color="#8B6F47" />
+              <ArrowLeftRight size={12} color="#2F5D9E" />
             </View>
             <Text numberOfLines={2} className="flex-1 font-hand text-sm leading-5 text-accent">
               {wantsText}

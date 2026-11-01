@@ -65,15 +65,15 @@ export default function HomeScreen() {
       <View className="mb-4 flex-row items-center justify-between pt-2">
         <Text className="text-2xl font-bold text-primary">Market</Text>
         <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-card border border-border">
-          <Bell size={20} color="#243B53" />
+          <Bell size={20} color="#0F2A4A" />
         </Pressable>
       </View>
 
       <View className="mb-4 flex-row items-center rounded-lg border border-border bg-card px-3">
-        <Search size={18} color="#6B7280" />
+        <Search size={18} color="#64748B" />
         <TextInput
           placeholder="Search for items..."
-          placeholderTextColor="#6B7280"
+          placeholderTextColor="#64748B"
           value={searchQuery}
           onChangeText={setSearchQuery}
           className="ml-2 h-11 flex-1 text-base text-ink"
@@ -113,7 +113,7 @@ export default function HomeScreen() {
       <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
         {header}
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#243B53" />
+          <ActivityIndicator size="large" color="#0F2A4A" />
         </View>
       </SafeAreaView>
     );
@@ -128,7 +128,7 @@ export default function HomeScreen() {
         columnWrapperClassName="justify-between px-5"
         contentContainerClassName="pb-6"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => loadListings(true)} tintColor="#243B53" />
+          <RefreshControl refreshing={refreshing} onRefresh={() => loadListings(true)} tintColor="#0F2A4A" />
         }
         ListHeaderComponent={header}
         renderItem={({ item }) => (

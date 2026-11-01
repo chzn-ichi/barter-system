@@ -103,7 +103,7 @@ export default function CounterTradeScreen() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#243B53" />
+        <ActivityIndicator size="large" color="#0F2A4A" />
       </View>
     );
   }
@@ -138,7 +138,7 @@ export default function CounterTradeScreen() {
           ))
         )}
         <Pressable onPress={() => setAddModalOpen(true)} className="mb-5 flex-row items-center gap-1.5">
-          <Plus size={14} color="#243B53" />
+          <Plus size={14} color="#0F2A4A" />
           <Text className="text-sm text-primary">Add something else</Text>
         </Pressable>
 
@@ -235,7 +235,7 @@ function SelectableRow({
           <Text className="text-[11px] text-success">{tag}</Text>
         </View>
       ) : null}
-      {selected ? <Check size={18} color="#243B53" /> : null}
+      {selected ? <Check size={18} color="#0F2A4A" /> : null}
     </Pressable>
   );
 }

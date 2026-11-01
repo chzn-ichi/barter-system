@@ -101,7 +101,7 @@ export default function TradesScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#243B53" />
+          <ActivityIndicator size="large" color="#0F2A4A" />
         </View>
       ) : trades.length === 0 ? (
         <EmptyState icon={Repeat} title="No trades yet" subtitle="Make an offer on any item to get started." />
@@ -109,7 +109,7 @@ export default function TradesScreen() {
         <ScrollView
           contentContainerClassName="px-5 pb-6"
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => loadTrades(true)} tintColor="#243B53" />
+            <RefreshControl refreshing={refreshing} onRefresh={() => loadTrades(true)} tintColor="#0F2A4A" />
           }
         >
           <Section title="Active" trades={active} />

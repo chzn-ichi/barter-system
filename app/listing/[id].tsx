@@ -45,7 +45,7 @@ export default function ListingDetailScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#243B53" />
+        <ActivityIndicator size="large" color="#0F2A4A" />
       </SafeAreaView>
     );
   }
@@ -66,7 +66,7 @@ export default function ListingDetailScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center px-5 py-3">
         <Pressable onPress={() => router.back()} className="h-9 w-9 items-center justify-center">
-          <ArrowLeft size={22} color="#263238" />
+          <ArrowLeft size={22} color="#0F170A" />
         </Pressable>
       </View>
 
@@ -92,7 +92,7 @@ export default function ListingDetailScreen() {
             </ScrollView>
           ) : (
             <View className="h-full w-full items-center justify-center">
-              <ImageOff size={32} color="#6B7280" />
+              <ImageOff size={32} color="#64748B" />
             </View>
           )}
 
@@ -140,7 +140,7 @@ export default function ListingDetailScreen() {
         {current.hasFlaw ? (
           <View className="mb-5 rounded-xl border border-border bg-card p-4">
             <View className="mb-1.5 flex-row items-center gap-2">
-              <AlertTriangle size={16} color="#8B6F47" />
+              <AlertTriangle size={16} color="#2F5D9E" />
               <Text className="text-sm font-semibold text-ink">Worth knowing</Text>
             </View>
             <Text className="text-sm leading-5 text-muted">
@@ -162,7 +162,7 @@ export default function ListingDetailScreen() {
             <Text className="text-sm font-semibold text-ink">{current.ownerName}</Text>
             {current.ownerBarangay ? (
               <View className="mt-0.5 flex-row items-center gap-1">
-                <MapPin size={12} color="#6B7280" />
+                <MapPin size={12} color="#64748B" />
                 <Text className="text-xs text-muted">{current.ownerBarangay}</Text>
               </View>
             ) : null}

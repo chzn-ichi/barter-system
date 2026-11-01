@@ -42,7 +42,7 @@ export default function EditProfileScreen() {
             className="h-12 flex-row items-center justify-between rounded-lg border border-border bg-card px-4"
           >
             <Text className="text-base text-ink">{barangay}</Text>
-            <ChevronDown size={18} color="#6B7280" />
+            <ChevronDown size={18} color="#64748B" />
           </Pressable>
           {showPicker ? (
             <View className="mt-2 rounded-lg border border-border bg-card">

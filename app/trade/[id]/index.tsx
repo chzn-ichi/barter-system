@@ -51,7 +51,7 @@ export default function TradeTimelineScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#243B53" />
+        <ActivityIndicator size="large" color="#0F2A4A" />
       </SafeAreaView>
     );
   }
@@ -65,6 +65,9 @@ export default function TradeTimelineScreen() {
   }
 
   const currentTrade = trade;
+  const myId = user.id;
+  const endedByMe = currentTrade.endedBy === myId;
+  const endedByOther = !!currentTrade.endedBy && currentTrade.endedBy !== myId;
   const isProposer = user.id === currentTrade.proposerId;
   const otherPersonName = isProposer ? currentTrade.recipientName : currentTrade.proposerName;
   const latestRound = currentTrade.rounds[currentTrade.rounds.length - 1];
@@ -100,10 +103,18 @@ export default function TradeTimelineScreen() {
     bannerText = "This trade is complete.";
   } else if (currentTrade.status === "rejected") {
     bannerTone = "danger";
-    bannerText = `${otherPersonName} declined this trade.`;
+    bannerText = endedByMe
+      ? "You declined this trade."
+      : endedByOther
+      ? `${otherPersonName} declined this trade.`
+      : "This trade was declined.";
   } else if (currentTrade.status === "cancelled") {
     bannerTone = "danger";
-    bannerText = "This trade was cancelled.";
+    bannerText = endedByMe
+      ? "You cancelled this trade."
+      : endedByOther
+      ? `${otherPersonName} cancelled this trade.`
+      : "This trade was cancelled.";
   } else if (isNegotiating) {
     if (myAccepted) {
       bannerTone = "secondary";
@@ -148,7 +159,7 @@ export default function TradeTimelineScreen() {
           setActionLoading(true);
           setError(null);
           try {
-            await rejectTrade(currentTrade.id);
+            await rejectTrade(currentTrade.id, myId);
             load();
           } catch (e: any) {
             setError(e.message);
@@ -169,7 +180,7 @@ export default function TradeTimelineScreen() {
         onPress: async () => {
           setActionLoading(true);
           try {
-            await cancelTrade(currentTrade.id);
+            await cancelTrade(currentTrade.id, myId);
             load();
           } catch (e: any) {
             setError(e.message);
@@ -193,7 +204,7 @@ export default function TradeTimelineScreen() {
           onPress: async () => {
             setActionLoading(true);
             try {
-              await cancelTrade(currentTrade.id);
+              await cancelTrade(currentTrade.id, myId);
               load();
             } catch (e: any) {
               setError(e.message);
@@ -210,7 +221,7 @@ export default function TradeTimelineScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center px-5 py-3">
         <Pressable onPress={() => router.back()} className="h-9 w-9 items-center justify-center">
-          <ArrowLeft size={22} color="#263238" />
+          <ArrowLeft size={22} color="#0F170A" />
         </Pressable>
         <Text className="ml-2 flex-1 text-lg font-semibold text-ink">Trade with {otherPersonName}</Text>
         {headerBadge ? (
@@ -289,9 +300,9 @@ export default function TradeTimelineScreen() {
                 {previousRounds.length === 1 ? "offer" : "offers"}
               </Text>
               {historyOpen ? (
-                <ChevronUp size={16} color="#6B7280" />
+                <ChevronUp size={16} color="#64748B" />
               ) : (
-                <ChevronDown size={16} color="#6B7280" />
+                <ChevronDown size={16} color="#64748B" />
               )}
             </Pressable>
 

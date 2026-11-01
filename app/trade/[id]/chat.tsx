@@ -111,14 +111,14 @@ export default function ChatScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-row items-center border-b border-border px-5 py-3">
         <Pressable onPress={() => router.back()} className="h-9 w-9 items-center justify-center">
-          <ArrowLeft size={22} color="#263238" />
+          <ArrowLeft size={22} color="#0F170A" />
         </Pressable>
         <Text className="ml-2 text-lg font-semibold text-ink">{otherPersonName || "Chat"}</Text>
       </View>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#243B53" />
+          <ActivityIndicator color="#0F2A4A" />
         </View>
       ) : (
         <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={90}>
@@ -147,7 +147,7 @@ export default function ChatScreen() {
               value={input}
               onChangeText={setInput}
               placeholder="Type a message..."
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#64748B"
               className="h-11 flex-1 rounded-full border border-border bg-card px-4 text-base text-ink"
               onSubmitEditing={handleSend}
             />
@@ -156,7 +156,7 @@ export default function ChatScreen() {
               disabled={!input.trim() || sending}
               className={`h-11 w-11 items-center justify-center rounded-full ${input.trim() ? "bg-primary" : "bg-border"}`}
             >
-              <Send size={18} color="#FFFFF8" />
+              <Send size={18} color="#FFFFFF" />
             </Pressable>
           </View>
         </KeyboardAvoidingView>

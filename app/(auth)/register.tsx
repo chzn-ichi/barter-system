@@ -79,7 +79,7 @@ export default function RegisterScreen() {
             <Text className={barangay ? "text-base text-ink" : "text-base text-muted"}>
               {barangay || "Select your barangay"}
             </Text>
-            <ChevronDown size={18} color="#6B7280" />
+            <ChevronDown size={18} color="#64748B" />
           </Pressable>
         </View>
 

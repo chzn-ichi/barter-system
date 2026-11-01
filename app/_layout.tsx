@@ -19,7 +19,7 @@ export default function RootLayout() {
   if (isLoading || !fontsLoaded) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#243B53" />
+        <ActivityIndicator size="large" color="#0F2A4A" />
       </View>
     );
   }
@@ -33,6 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="listing" options={{ presentation: "modal" }} />
         <Stack.Screen name="trade" />
         <Stack.Screen name="user" />
+        <Stack.Screen name="match" options={{ presentation: "modal" }} />
       </Stack>
     </SafeAreaProvider>
   );

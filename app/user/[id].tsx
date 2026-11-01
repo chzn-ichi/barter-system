@@ -96,7 +96,7 @@ export default function PublicStallScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#243B53" />
+        <ActivityIndicator size="large" color="#0F2A4A" />
       </SafeAreaView>
     );
   }
@@ -125,7 +125,7 @@ export default function PublicStallScreen() {
           }}
         >
           <Pressable onPress={() => router.back()} className="h-9 w-9 items-center justify-center">
-            <ArrowLeft size={20} color="#FFFFF8" />
+            <ArrowLeft size={20} color="#FFFFFF" />
           </Pressable>
         </View>
 
@@ -182,7 +182,7 @@ export default function PublicStallScreen() {
                       <Image source={{ uri: item.imageUrl }} className="h-full w-full" resizeMode="cover" />
                     ) : (
                       <View className="h-full w-full items-center justify-center">
-                        <Package size={20} color="#6B7280" />
+                        <Package size={20} color="#64748B" />
                       </View>
                     )}
                   </View>

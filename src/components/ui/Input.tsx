@@ -10,7 +10,7 @@ export function Input({ label, error, ...rest }: Props) {
     <View className="mb-4">
       <Text className="mb-1.5 text-sm font-medium text-ink">{label}</Text>
       <TextInput
-        placeholderTextColor="#6B7280"
+        placeholderTextColor="#64748B"
         className={`h-12 rounded-lg border bg-card px-4 text-base text-ink ${
           error ? "border-danger" : "border-border"
         }`}

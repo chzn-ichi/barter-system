@@ -80,7 +80,7 @@ export function AddItemModal({
           <View className="mb-4 flex-row items-center justify-between">
             <Text className="text-lg font-semibold text-ink">Add something else</Text>
             <Pressable onPress={onClose}>
-              <X size={20} color="#263238" />
+              <X size={20} color="#0F170A" />
             </Pressable>
           </View>
 
@@ -94,7 +94,7 @@ export function AddItemModal({
               <Image source={{ uri: photoUri }} className="h-20 w-20 rounded-lg" />
             ) : (
               <>
-                <Camera size={18} color="#6B7280" />
+                <Camera size={18} color="#64748B" />
                 <Text className="mt-1 text-[10px] text-muted">Optional photo</Text>
               </>
             )}
@@ -102,7 +102,7 @@ export function AddItemModal({
 
           <TextInput
             placeholder="Item name"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#64748B"
             value={title}
             onChangeText={setTitle}
             className="mb-3 h-11 rounded-lg border border-border bg-card px-3 text-base text-ink"

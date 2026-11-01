@@ -95,7 +95,7 @@ export default function ProposeTradeScreen() {
       <Text className="mb-3 text-sm font-semibold text-ink">Select items to offer</Text>
 
       {loading ? (
-        <ActivityIndicator color="#243B53" />
+        <ActivityIndicator color="#0F2A4A" />
       ) : myListings.length === 0 ? (
         <EmptyState
           icon={PackageX}
@@ -122,7 +122,7 @@ export default function ProposeTradeScreen() {
                 <Text className="ml-3 flex-1 text-sm text-ink" numberOfLines={1}>
                   {item.title}
                 </Text>
-                {selected ? <Check size={18} color="#243B53" /> : null}
+                {selected ? <Check size={18} color="#0F2A4A" /> : null}
               </Pressable>
             );
           })}
@@ -131,7 +131,7 @@ export default function ProposeTradeScreen() {
 
       {user ? (
         <Pressable onPress={() => setAddModalOpen(true)} className="mb-4 flex-row items-center gap-1.5">
-          <Plus size={14} color="#243B53" />
+          <Plus size={14} color="#0F2A4A" />
           <Text className="text-sm text-primary">Add something else</Text>
         </Pressable>
       ) : null}
