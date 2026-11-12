@@ -17,6 +17,7 @@ type AuthState = {
   resetPassword: (identifier: string, newPassword: string) => Promise<void>;
   updateProfile: (patch: Partial<{ name: string; barangay: string; avatarUrl: string }>) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -77,6 +78,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await authApi.updateProfile(current.id, patch);
     const refreshed = await authApi.fetchProfile(current.id, current.email);
     set({ user: refreshed });
+  },
+
+  refreshUser: async () => {
+    const current = get().user;
+    if (!current) return;
+    try {
+      const refreshed = await authApi.fetchProfile(current.id, current.email);
+      set({ user: refreshed });
+    } catch {
+      // keep the old numbers if the refresh fails
+    }
   },
 
   logout: async () => {

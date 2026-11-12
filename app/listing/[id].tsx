@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -14,6 +13,7 @@ import { AlertTriangle, ArrowLeft, ImageOff, MapPin } from "lucide-react-native"
 import { fetchListingById, type ListingDetail } from "@/lib/listingsApi";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/Button";
+import { ListingDetailSkeleton } from "@/components/ui/Skeletons";
 
 export default function ListingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,13 +42,7 @@ export default function ListingDetailScreen() {
     };
   }, [id]);
 
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color="#0F2A4A" />
-      </SafeAreaView>
-    );
-  }
+  if (loading) return <ListingDetailSkeleton />;
 
   if (!listing) {
     return (

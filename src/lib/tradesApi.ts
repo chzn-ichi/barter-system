@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { formatDate, formatTime } from "@/lib/meetupUtils";
 
 export type TradeStatus =
   | "pending"
@@ -11,11 +12,21 @@ export type TradeStatus =
   | "cancelled"
   | "disputed";
 
+export type TradeGroup = "todo" | "waiting" | "agreed" | "completed" | "declined";
+
 export type Trade = {
   id: string;
   withUserName: string;
   status: TradeStatus;
-  updatedAt: string;
+  updatedAt: string; // ISO timestamp, formatted on screen
+  group: TradeGroup;
+  chipLabel: string;
+  hint: string | null;
+  title: string;
+  yourImage: string | null;
+  theirImage: string | null;
+  meetupText: string | null;
+  lastMessage: string | null;
 };
 
 export type RoundItem = {
@@ -46,10 +57,23 @@ export type TradeTimeline = {
   recipientName: string;
   status: TradeStatus;
   roundCount: number;
+  endedBy: string | null;
+  proposerConfirmedExchange: boolean;
+  recipientConfirmedExchange: boolean;
   rounds: TradeRound[];
 };
 
 const MAX_ROUNDS = 5;
+
+function firstPhoto(listing: any): string | null {
+  const photos = [...(listing?.listing_photos ?? [])].sort((a: any, b: any) => a.position - b.position);
+  return photos[0]?.url ?? null;
+}
+
+function sideTitle(items: any[]) {
+  const first = items[0]?.listings?.title ?? "an item";
+  return items.length > 1 ? `${first} +${items.length - 1}` : first;
+}
 
 export async function fetchMyTrades(userId: string): Promise<Trade[]> {
   const { data, error } = await supabase
@@ -59,8 +83,11 @@ export async function fetchMyTrades(userId: string): Promise<Trade[]> {
       id,
       status,
       updated_at,
+      ended_by,
       proposer_id,
       recipient_id,
+      proposer_confirmed_exchange,
+      recipient_confirmed_exchange,
       proposer:profiles!trades_proposer_id_fkey ( name ),
       recipient:profiles!trades_recipient_id_fkey ( name )
       `
@@ -68,16 +95,155 @@ export async function fetchMyTrades(userId: string): Promise<Trade[]> {
     .or(`proposer_id.eq.${userId},recipient_id.eq.${userId}`)
     .order("updated_at", { ascending: false });
 
-  if (error) throw new Error("Could not load deals.");
+  if (error) throw new Error("Could not load trades.");
 
-  return (data ?? []).map((row: any) => {
+  const rows = data ?? [];
+  if (rows.length === 0) return [];
+  const ids = rows.map((r: any) => r.id);
+
+  const [roundsRes, meetupsRes, msgsRes] = await Promise.all([
+    supabase
+      .from("trade_rounds")
+      .select(
+        `
+        id,
+        trade_id,
+        round_number,
+        proposer_accepted,
+        recipient_accepted,
+        trade_round_items (
+          offered_by,
+          listings ( title, listing_photos ( url, position ) )
+        )
+        `
+      )
+      .in("trade_id", ids)
+      .order("round_number", { ascending: false }),
+    supabase
+      .from("meetup_proposals")
+      .select("trade_id, proposed_by, meetup_date, meetup_time, location, status")
+      .in("trade_id", ids)
+      .in("status", ["pending", "accepted"]),
+    supabase
+      .from("messages")
+      .select("trade_id, content, sender_id, kind, created_at")
+      .in("trade_id", ids)
+      .order("created_at", { ascending: false })
+      .limit(300),
+  ]);
+
+  if (roundsRes.error) throw new Error("Could not load trades.");
+
+  // Rounds arrive newest-first, so the first one seen per trade is its latest.
+  const latestRound: Record<string, any> = {};
+  for (const r of roundsRes.data ?? []) {
+    if (!latestRound[r.trade_id]) latestRound[r.trade_id] = r;
+  }
+
+  const previews: Record<string, string> = {};
+  for (const m of msgsRes.data ?? []) {
+    if (previews[m.trade_id]) continue;
+    previews[m.trade_id] = m.kind === "text" && m.sender_id === userId ? `You: ${m.content}` : m.content;
+  }
+
+  const meetups = meetupsRes.data ?? [];
+
+  return rows.map((row: any): Trade => {
     const isProposer = row.proposer_id === userId;
-    const otherUser = isProposer ? row.recipient : row.proposer;
+    const other = isProposer ? row.recipient : row.proposer;
+    const otherName: string = other?.name ?? "Unknown";
+    const otherFirst = otherName.split(" ")[0];
+
+    const round = latestRound[row.id];
+    const items: any[] = round?.trade_round_items ?? [];
+    const mine = items.filter((i) => i.offered_by === userId);
+    const theirs = items.filter((i) => i.offered_by !== userId);
+
+    const myAccepted = round ? (isProposer ? round.proposer_accepted : round.recipient_accepted) : false;
+    const myConfirmedExchange = isProposer ? row.proposer_confirmed_exchange : row.recipient_confirmed_exchange;
+    const otherConfirmedExchange = isProposer ? row.recipient_confirmed_exchange : row.proposer_confirmed_exchange;
+
+    const tradeMeetups = meetups.filter((m: any) => m.trade_id === row.id);
+    const pendingMeetup = tradeMeetups.find((m: any) => m.status === "pending");
+    const confirmedMeetup = tradeMeetups.find((m: any) => m.status === "accepted");
+
+    const endedByMe = row.ended_by === userId;
+    const endedByOther = !!row.ended_by && !endedByMe;
+
+    let group: TradeGroup = "agreed";
+    let chipLabel = "Confirmed";
+    let hint: string | null = null;
+
+    switch (row.status) {
+      case "pending":
+      case "countered":
+        if (!myAccepted) {
+          group = "todo";
+          chipLabel = "Action needed";
+          hint = `Review ${otherFirst}'s offer`;
+        } else {
+          group = "waiting";
+          chipLabel = "Waiting";
+          hint = `Waiting for ${otherFirst} to respond`;
+        }
+        break;
+      case "accepted":
+        if (pendingMeetup && pendingMeetup.proposed_by !== userId) {
+          group = "todo";
+          chipLabel = "Action needed";
+          hint = "Answer the meetup proposal";
+        } else if (otherConfirmedExchange && !myConfirmedExchange) {
+          group = "todo";
+          chipLabel = "Action needed";
+          hint = `${otherFirst} confirmed the exchange. Confirm yours`;
+        } else if (myConfirmedExchange) {
+          group = "waiting";
+          chipLabel = "Waiting";
+          hint = `Waiting for ${otherFirst} to confirm`;
+        }
+        break;
+      case "completed":
+        group = "completed";
+        chipLabel = "Completed";
+        break;
+      case "rejected":
+        group = "declined";
+        chipLabel = endedByMe ? "You declined" : endedByOther ? `${otherFirst} declined` : "Declined";
+        break;
+      case "cancelled":
+        group = "declined";
+        chipLabel = endedByMe ? "You cancelled" : endedByOther ? `${otherFirst} cancelled` : "Cancelled";
+        break;
+      case "disputed":
+        group = "declined";
+        chipLabel = "Disputed";
+        break;
+      default:
+        break;
+    }
+
+    let meetupText: string | null = null;
+    if (confirmedMeetup) {
+      meetupText = `Meetup ${formatDate(confirmedMeetup.meetup_date)} · ${formatTime(
+        String(confirmedMeetup.meetup_time).slice(0, 5)
+      )} · ${confirmedMeetup.location}`;
+    } else if (pendingMeetup) {
+      meetupText = "Meetup proposed";
+    }
+
     return {
       id: row.id,
-      withUserName: otherUser?.name ?? "Unknown",
+      withUserName: otherName,
       status: row.status,
-      updatedAt: new Date(row.updated_at).toLocaleDateString(),
+      updatedAt: row.updated_at,
+      group,
+      chipLabel,
+      hint,
+      title: `${sideTitle(mine)} for ${sideTitle(theirs)}`,
+      yourImage: firstPhoto(mine[0]?.listings),
+      theirImage: firstPhoto(theirs[0]?.listings),
+      meetupText,
+      lastMessage: previews[row.id] ?? null,
     };
   });
 }
@@ -90,6 +256,9 @@ export async function fetchTradeTimeline(tradeId: string): Promise<TradeTimeline
       id,
       status,
       round_count,
+      proposer_confirmed_exchange,
+      recipient_confirmed_exchange,
+      ended_by,
       proposer_id,
       recipient_id,
       proposer:profiles!trades_proposer_id_fkey ( name ),
@@ -132,6 +301,9 @@ export async function fetchTradeTimeline(tradeId: string): Promise<TradeTimeline
     recipientName: (trade.recipient as any)?.name ?? "Unknown",
     status: trade.status,
     roundCount: trade.round_count,
+    endedBy: trade.ended_by,
+    proposerConfirmedExchange: trade.proposer_confirmed_exchange,
+    recipientConfirmedExchange: trade.recipient_confirmed_exchange,
     rounds: (rounds ?? []).map((r: any) => ({
       id: r.id,
       roundNumber: r.round_number,
@@ -190,6 +362,7 @@ export async function proposeTrade(input: {
       trade_id: trade.id,
       round_number: 1,
       proposed_by: input.proposerId,
+      proposer_accepted: true,
       message: input.message || null,
     })
     .select()
@@ -226,7 +399,7 @@ export async function sendCounter(input: {
 }) {
   const { data: trade, error: tradeFetchError } = await supabase
     .from("trades")
-    .select("round_count")
+    .select("round_count, proposer_id")
     .eq("id", input.tradeId)
     .single();
 
@@ -237,6 +410,8 @@ export async function sendCounter(input: {
 
   const nextRoundNumber = trade.round_count + 1;
 
+  const authorIsProposer = trade.proposer_id === input.proposedBy;
+
   const { data: round, error: roundError } = await supabase
     .from("trade_rounds")
     .insert({
@@ -244,6 +419,8 @@ export async function sendCounter(input: {
       round_number: nextRoundNumber,
       proposed_by: input.proposedBy,
       message: input.message || null,
+      proposer_accepted: authorIsProposer,
+      recipient_accepted: !authorIsProposer,
     })
     .select()
     .single();
@@ -308,18 +485,18 @@ export async function acceptRound(input: { tradeId: string; roundId: string; isP
   }
 }
 
-export async function rejectTrade(tradeId: string) {
+export async function rejectTrade(tradeId: string, userId: string) {
   const { error } = await supabase
     .from("trades")
-    .update({ status: "rejected", updated_at: new Date().toISOString() })
+    .update({ status: "rejected", ended_by: userId, updated_at: new Date().toISOString() })
     .eq("id", tradeId);
   if (error) throw new Error("Could not decline this deal.");
 }
 
-export async function cancelTrade(tradeId: string) {
+export async function cancelTrade(tradeId: string, userId: string) {
   const { error } = await supabase
     .from("trades")
-    .update({ status: "cancelled", updated_at: new Date().toISOString() })
+    .update({ status: "cancelled", ended_by: userId, updated_at: new Date().toISOString() })
     .eq("id", tradeId);
   if (error) throw new Error("Could not cancel this deal.");
 }

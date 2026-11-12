@@ -1,6 +1,7 @@
 import * as FileSystem from "expo-file-system/legacy";
 import { decode } from "base64-arraybuffer";
 import { supabase } from "@/lib/supabase";
+import { Platform } from "react-native";
 
 export type Condition = "Brand New" | "Like New" | "Good" | "Fair";
 
@@ -126,16 +127,30 @@ export async function fetchListingById(id: string): Promise<ListingDetail> {
 }
 
 export async function uploadListingPhoto(userId: string, localUri: string): Promise<string> {
-  const base64 = await FileSystem.readAsStringAsync(localUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
-  const fileExt = localUri.split(".").pop()?.toLowerCase() ?? "jpg";
+  let body: ArrayBuffer;
+  let fileExt = "jpg";
+  let contentType = "image/jpeg";
+
+  if (Platform.OS === "web") {
+    // In a browser the picked image is a blob, so read it with fetch.
+    const response = await fetch(localUri);
+    const blob = await response.blob();
+    body = await blob.arrayBuffer();
+    contentType = blob.type || "image/jpeg";
+    fileExt = contentType.split("/")[1]?.split("+")[0] || "jpg";
+  } else {
+    const base64 = await FileSystem.readAsStringAsync(localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    body = decode(base64);
+    fileExt = localUri.split(".").pop()?.toLowerCase() ?? "jpg";
+    contentType = `image/${fileExt === "jpg" ? "jpeg" : fileExt}`;
+  }
+
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
   const path = `${userId}/${fileName}`;
 
-  const { error } = await supabase.storage.from("listing-photos").upload(path, decode(base64), {
-    contentType: `image/${fileExt === "jpg" ? "jpeg" : fileExt}`,
-  });
+  const { error } = await supabase.storage.from("listing-photos").upload(path, body, { contentType });
 
   if (error) throw new Error("Could not upload photo.");
 

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import { router, useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -17,6 +16,7 @@ import { categories } from "@/lib/mockData";
 import { fetchActiveListings, type Listing } from "@/lib/listingsApi";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ListingGridSkeleton } from "@/components/ui/Skeletons";
 
 
 
@@ -112,9 +112,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
         {header}
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#0F2A4A" />
-        </View>
+        <ListingGridSkeleton />
       </SafeAreaView>
     );
   }

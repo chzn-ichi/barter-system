@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -20,6 +19,7 @@ import { getFollowCounts } from "@/lib/followApi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { ProfileSectionsSkeleton } from "@/components/ui/Skeletons";
 
 type ConfirmConfig = {
   title: string;
@@ -43,14 +43,18 @@ export default function ProfileScreen() {
   const [confirm, setConfirm] = useState<ConfirmConfig | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
+  const refreshUser = useAuthStore((s) => s.refreshUser);
+  const userId = user?.id;
+
   const loadData = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setLoading(true);
+    refreshUser();
     try {
       const [listings, wanted, counts] = await Promise.all([
-        fetchMyListings(user.id, { includeOfferOnly: false }),
-        fetchWantedItems(user.id),
-        getFollowCounts(user.id),
+        fetchMyListings(userId, { includeOfferOnly: false }),
+        fetchWantedItems(userId),
+        getFollowCounts(userId),
       ]);
       setMyListings(listings);
       setWantedItems(wanted);
@@ -61,7 +65,7 @@ export default function ProfileScreen() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId, refreshUser]);
 
   useFocusEffect(
     useCallback(() => {
@@ -186,9 +190,7 @@ export default function ProfileScreen() {
         </View>
 
         {loading ? (
-          <View className="items-center py-8">
-            <ActivityIndicator color="#0F2A4A" />
-          </View>
+          <ProfileSectionsSkeleton />
         ) : (
           <>
             <View className="mb-8 px-5">

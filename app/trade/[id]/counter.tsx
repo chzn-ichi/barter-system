@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Check, Plus } from "lucide-react-native";
+import { ArrowLeft, Check, Plus } from "lucide-react-native";
 import { fetchTradeTimeline, sendCounter } from "@/lib/tradesApi";
 import { fetchMyListings, type Listing } from "@/lib/listingsApi";
 import { useAuthStore } from "@/store/authStore";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { AddItemModal } from "@/components/trade/AddItemModal";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 
 const QUICK_MESSAGES = ["I need a bit more", "Can you add something?", "A different item, please"];
 
@@ -17,6 +19,7 @@ type SimpleItem = { id: string; title: string; imageUrl: string | null };
 export default function CounterTradeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [otherUserId, setOtherUserId] = useState("");
@@ -111,9 +114,12 @@ export default function CounterTradeScreen() {
   const myCombinedListings: SimpleItem[] = [...myListings, ...extraMyItems];
 
   return (
-    <View className="flex-1 bg-background px-5 py-6">
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-ink">Counter offer</Text>
+    <View className="flex-1 bg-background px-5 pt-6" style={{ paddingBottom: insets.bottom + 24 }}>
+      <View className="mb-2 flex-row items-center">
+        <Pressable onPress={() => router.back()} className="-ml-2 h-9 w-9 items-center justify-center">
+          <ArrowLeft size={22} color="#0F172A" />
+        </Pressable>
+        <Text className="ml-1 flex-1 text-2xl font-bold text-ink">Counter offer</Text>
         <Text className="text-xs text-muted">Offer {offerNumber} of 5</Text>
       </View>
       <Text className="mb-5 text-sm text-muted">

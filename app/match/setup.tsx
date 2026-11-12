@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heart, Minus, Package, Plus, X } from "lucide-react-native";
+import { ArrowLeftRight, Check, Heart, Minus, Package, Plus, X } from "lucide-react-native";
 import { categories } from "@/lib/mockData";
 import { fetchMyListings, type Listing } from "@/lib/listingsApi";
 import { findMatches } from "@/lib/matchApi";
@@ -276,6 +276,89 @@ function AddWantSheet({ visible, onClose }: { visible: boolean; onClose: () => v
   );
 }
 
+
+function SectionHeader({
+  title,
+  subtitle,
+  count,
+}: {
+  title: string;
+  subtitle: string;
+  count: number;
+}) {
+  return (
+    <View className="mb-3 flex-row items-center">
+      <View className="flex-1">
+        <Text className="text-base font-semibold text-ink">{title}</Text>
+        <Text className="text-xs text-muted">{subtitle}</Text>
+      </View>
+      {count > 0 ? (
+        <View className="rounded-full bg-primary/10 px-2.5 py-0.5">
+          <Text className="text-xs font-medium text-primary">{count}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function AddCard({
+  label,
+  hint,
+  onPress,
+  compact,
+}: {
+  label: string;
+  hint?: string;
+  onPress: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={`flex-row items-center rounded-xl border-2 border-dashed border-border bg-card/50 px-4 ${
+        compact ? "py-3" : "py-5"
+      }`}
+    >
+      <View className="h-9 w-9 items-center justify-center rounded-full bg-primary">
+        <Plus size={18} color="#FFFFFF" />
+      </View>
+      <View className="ml-3 flex-1">
+        <Text className="text-sm font-semibold text-primary">{label}</Text>
+        {hint && !compact ? <Text className="text-xs text-muted">{hint}</Text> : null}
+      </View>
+    </Pressable>
+  );
+}
+
+function ChecklistItem({ done, label }: { done: boolean; label: string }) {
+  return (
+    <View className="flex-row items-center gap-1.5">
+      <View
+        className={`h-4 w-4 items-center justify-center rounded-full ${
+          done ? "bg-success" : "border border-border"
+        }`}
+      >
+        {done ? <Check size={10} color="#FFFFFF" /> : null}
+      </View>
+      <Text className={`text-xs ${done ? "text-ink" : "text-muted"}`}>{label}</Text>
+    </View>
+  );
+}
+
+function ExchangeDivider() {
+  return (
+    <View className="my-6 flex-row items-center px-8">
+      <View className="h-px flex-1 bg-border" />
+      <View className="mx-3 h-8 w-8 items-center justify-center rounded-full border border-border bg-card">
+        <ArrowLeftRight size={14} color="#64748B" />
+      </View>
+      <View className="h-px flex-1 bg-border" />
+    </View>
+  );
+}
+
+
+
 export default function MatchSetupScreen() {
   const user = useAuthStore((s) => s.user);
   const insets = useSafeAreaInsets();
@@ -333,17 +416,21 @@ export default function MatchSetupScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerClassName="px-5 pb-6" keyboardShouldPersistTaps="handled">
+            <ScrollView contentContainerClassName="px-5 pb-6 pt-2" keyboardShouldPersistTaps="handled">
         {error ? <ErrorBanner message={error} /> : null}
 
-        <Text className="mb-1 text-base font-semibold text-ink">What I can offer</Text>
-        <Text className="mb-3 text-xs text-muted">
-          "Include in bundle" means this item can be offered together with others in one trade.
-        </Text>
-        {offers.length === 0 ? (
-          <Text className="mb-3 text-sm text-muted">Nothing added yet.</Text>
-        ) : (
-          offers.map((o) => (
+        <View>
+          <SectionHeader
+            title="What I can offer"
+            subtitle="Items you're willing to trade away"
+            count={offers.length}
+          />
+          {offers.length > 0 ? (
+            <Text className="mb-2 text-xs text-muted">
+              "Include in bundle" lets an item be offered together with others in one trade.
+            </Text>
+          ) : null}
+          {offers.map((o) => (
             <RowCard
               key={o.id}
               isOffer
@@ -357,21 +444,29 @@ export default function MatchSetupScreen() {
               onSwitch={(v) => updateOffer(o.id, { bundle: v })}
               onRemove={() => removeOffer(o.id)}
             />
-          ))
-        )}
-        <Pressable onPress={() => setOfferSheetOpen(true)} className="mb-8 mt-1 flex-row items-center gap-1.5">
-          <Plus size={14} color="#0F2A4A" />
-          <Text className="text-sm text-primary">Add an item</Text>
-        </Pressable>
+          ))}
+          <AddCard
+            compact={offers.length > 0}
+            label={offers.length > 0 ? "Add another item" : "Add an item"}
+            hint="Pick from your items or add something new"
+            onPress={() => setOfferSheetOpen(true)}
+          />
+        </View>
 
-        <Text className="mb-1 text-base font-semibold text-ink">What I want</Text>
-        <Text className="mb-3 text-xs text-muted">
-          "Bundle allowed" means you're fine receiving this as part of a trade with several items.
-        </Text>
-        {wants.length === 0 ? (
-          <Text className="mb-3 text-sm text-muted">Nothing added yet.</Text>
-        ) : (
-          wants.map((w) => (
+        <ExchangeDivider />
+
+        <View>
+          <SectionHeader
+            title="What I want"
+            subtitle="Items you're hoping to get"
+            count={wants.length}
+          />
+          {wants.length > 0 ? (
+            <Text className="mb-2 text-xs text-muted">
+              "Bundle allowed" means you're fine receiving it as part of a trade with several items.
+            </Text>
+          ) : null}
+          {wants.map((w) => (
             <RowCard
               key={w.id}
               isOffer={false}
@@ -385,27 +480,32 @@ export default function MatchSetupScreen() {
               onSwitch={(v) => updateWant(w.id, { bundleAllowed: v })}
               onRemove={() => removeWant(w.id)}
             />
-          ))
-        )}
-        <Pressable onPress={() => setWantSheetOpen(true)} className="mt-1 flex-row items-center gap-1.5">
-          <Plus size={14} color="#0F2A4A" />
-          <Text className="text-sm text-primary">Add something I want</Text>
-        </Pressable>
+          ))}
+          <AddCard
+            compact={wants.length > 0}
+            label={wants.length > 0 ? "Add another" : "Add something I want"}
+            hint={'Type what you\'re looking for, like "film camera"'}
+            onPress={() => setWantSheetOpen(true)}
+          />
+        </View>
       </ScrollView>
 
       <View
         className="border-t border-border bg-background px-5 pt-4"
         style={{ paddingBottom: insets.bottom + 16 }}
       >
+        {!ready ? (
+          <View className="mb-3 flex-row justify-center gap-5">
+            <ChecklistItem done={offers.length > 0} label="Something to offer" />
+            <ChecklistItem done={wants.length > 0} label="Something I want" />
+          </View>
+        ) : null}
         <Button
           label="Find matches"
           variant={ready ? "primary" : "outline"}
           onPress={handleFind}
           disabled={!ready}
         />
-        {!ready ? (
-          <Text className="mt-2 text-center text-xs text-muted">Add at least one item on each side to continue.</Text>
-        ) : null}
       </View>
 
       <AddOfferSheet visible={offerSheetOpen} onClose={() => setOfferSheetOpen(false)} />

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { ScrollView, Pressable, Image } from "react-native";
-import { Check, Plus } from "lucide-react-native";
+import { ArrowLeft, Check, Plus } from "lucide-react-native";
 import { fetchMyListings, type Listing } from "@/lib/listingsApi";
 import { proposeTrade } from "@/lib/tradesApi";
 import { useAuthStore } from "@/store/authStore";
@@ -12,6 +12,7 @@ import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PackageX } from "lucide-react-native";
 import { AddItemModal } from "@/components/trade/AddItemModal";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProposeTradeScreen() {
   const { targetListingId, targetTitle, recipientId } = useLocalSearchParams<{
@@ -20,6 +21,7 @@ export default function ProposeTradeScreen() {
     recipientId: string;
   }>();
   const user = useAuthStore((s) => s.user);
+  const insets = useSafeAreaInsets();
 
   const [myListings, setMyListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,10 @@ export default function ProposeTradeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background px-5 py-6">
+    <View className="mb-2 flex-row items-center">
+        <Pressable onPress={() => router.back()} className="-ml-2 h-9 w-9 items-center justify-center">
+          <ArrowLeft size={22} color="#0F172A" />
+        </Pressable>
       <Text className="mb-1 text-2xl font-bold text-ink">Make an offer</Text>
       <Text className="mb-6 text-base text-muted">
         For {targetTitle}. They can accept, counter, or decline.

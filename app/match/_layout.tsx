@@ -9,6 +9,7 @@ export default function MatchLayout() {
       }}
     >
       <Stack.Screen name="setup" />
+      <Stack.Screen name="results" />
     </Stack>
   );
 }

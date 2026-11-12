@@ -11,7 +11,6 @@ export default function TradeLayout() {
       <Stack.Screen name="[id]/index" />
       <Stack.Screen name="[id]/counter" options={{ presentation: "modal" }} />
       <Stack.Screen name="[id]/chat" />
-      <Stack.Screen name="[id]/meetup" />
     </Stack>
   );
 }
