@@ -113,3 +113,22 @@ export function TradeListSkeleton() {
     </Pulse>
   );
 }
+
+
+export function NotificationListSkeleton() {
+  return (
+    <Pulse>
+      <View className="px-5">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <View key={i} className="mb-3 flex-row items-center rounded-xl border border-border bg-card p-3">
+            <Bone w={40} h={40} r={20} />
+            <View className="ml-3 flex-1">
+              <Bone w="45%" h={13} style={{ marginBottom: 8 }} />
+              <Bone w="80%" h={11} />
+            </View>
+          </View>
+        ))}
+      </View>
+    </Pulse>
+  );
+}

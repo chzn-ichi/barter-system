@@ -27,10 +27,14 @@ import { formatDate, formatTime } from "@/lib/meetupUtils";
 import { useAuthStore } from "@/store/authStore";
 import { MeetupForm } from "@/components/trade/MeetupForm";
 import { MeetupProposalCard } from "@/components/trade/MeetupProposalCard";
+import { markTradeRead } from "@/lib/notificationsApi";
+import { useNotificationStore } from "@/store/notificationStore";
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
+  const refreshNotifications = useNotificationStore((s) => s.refresh);
+
   const insets = useSafeAreaInsets();
 
   const [trade, setTrade] = useState<TradeTimeline | null>(null);
@@ -53,12 +57,15 @@ export default function ChatScreen() {
       const [msgs, props] = await Promise.all([fetchMessages(id), fetchProposals(id)]);
       setMessages(msgs);
       setProposals(Object.fromEntries(props.map((p) => [p.id, p])));
+      if (user?.id) {
+        markTradeRead(user.id, id, "messages").then(() => refreshNotifications(user.id));
+      }
     } catch {
       // keep what's on screen if a refresh fails
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, user?.id, refreshNotifications]);
 
   useFocusEffect(
     useCallback(() => {

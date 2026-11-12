@@ -17,7 +17,7 @@ import { fetchActiveListings, type Listing } from "@/lib/listingsApi";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListingGridSkeleton } from "@/components/ui/Skeletons";
-
+import { NotificationBell } from "@/components/ui/NotificationBell";
 
 
 export default function HomeScreen() {
@@ -64,9 +64,7 @@ export default function HomeScreen() {
     <View className="px-5">
       <View className="mb-4 flex-row items-center justify-between pt-2">
         <Text className="text-2xl font-bold text-primary">Market</Text>
-        <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-card border border-border">
-          <Bell size={20} color="#0F2A4A" />
-        </Pressable>
+        <NotificationBell />
       </View>
 
       <View className="mb-4 flex-row items-center rounded-lg border border-border bg-card px-3">

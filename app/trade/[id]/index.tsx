@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { TradeDetailSkeleton } from "@/components/ui/Skeletons";
+import { markTradeRead } from "@/lib/notificationsApi";
+import { useNotificationStore } from "@/store/notificationStore";
 
 const MAX_ROUNDS = 5;
 const NEGOTIATING_STATUSES = ["pending", "countered"];
@@ -54,6 +56,8 @@ type MeetupState = { confirmed: MeetupProposal | null; pending: MeetupProposal |
 export default function TradeTimelineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const user = useAuthStore((s) => s.user);
+  const userId = user?.id;
+  const refreshNotifications = useNotificationStore((s) => s.refresh);
 
   const [trade, setTrade] = useState<TradeTimeline | null>(null);
   const [meetup, setMeetup] = useState<MeetupState>({ confirmed: null, pending: null });
@@ -75,7 +79,11 @@ export default function TradeTimelineScreen() {
       })
       .catch(() => setTrade(null))
       .finally(() => setLoading(false));
-  }, [id]);
+
+    if (userId) {
+      markTradeRead(userId, id, "activity").then(() => refreshNotifications(userId));
+    }
+  }, [id, userId, refreshNotifications]);
 
   useFocusEffect(load);
 

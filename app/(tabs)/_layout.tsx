@@ -1,33 +1,25 @@
+import { useEffect } from "react";
+import { Pressable, View } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import { Home, Plus, Repeat, Shuffle, User } from "lucide-react-native";
-import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect, useState } from "react";
-import { hasActionableTrades } from "@/lib/tradesApi";
 import { useAuthStore } from "@/store/authStore";
+import { useNotificationStore } from "@/store/notificationStore";
+import { subscribeToNotifications } from "@/lib/notificationsApi";
 
 export default function TabsLayout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const user = useAuthStore((s) => s.user);
-  const [hasAction, setHasAction] = useState(false);
+
+  const userId = useAuthStore((s) => s.user?.id);
+  const refreshNotifications = useNotificationStore((s) => s.refresh);
+  const tradeUnread = useNotificationStore((s) => s.tradeUnread);
 
   useEffect(() => {
-    if (!user) return;
-    let active = true;
-    hasActionableTrades(user.id).then((result) => {
-      if (active) setHasAction(result);
-    });
-    const interval = setInterval(() => {
-      hasActionableTrades(user.id).then((result) => {
-        if (active) setHasAction(result);
-      });
-    }, 15000);
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, [user]);
+    if (!userId) return;
+    refreshNotifications(userId);
+    return subscribeToNotifications(userId, () => refreshNotifications(userId));
+  }, [userId, refreshNotifications]);
 
   return (
     <Tabs
@@ -64,28 +56,25 @@ export default function TabsLayout() {
         options={{
           title: "",
           tabBarIcon: () => (
-            <View className="h-11 w-11 items-center justify-center rounded-full bg-primary -mt-4 border-4 border-background">
+            <View className="-mt-4 h-11 w-11 items-center justify-center rounded-full border-4 border-background bg-primary">
               <Plus color="#FFFFFF" size={22} />
             </View>
           ),
           tabBarButton: ({ children, style }) => (
-            <Pressable
-              onPress={() => router.push("/listing/create")}
-              style={style}
-            >
+            <Pressable onPress={() => router.push("/listing/create")} style={style}>
               {children}
             </Pressable>
           ),
         }}
       />
-    <Tabs.Screen
+      <Tabs.Screen
         name="trades"
         options={{
           title: "Trades",
           tabBarIcon: ({ color, size }) => (
             <View>
               <Repeat color={color} size={size} />
-              {hasAction ? (
+              {tradeUnread > 0 ? (
                 <View className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-danger" />
               ) : null}
             </View>
@@ -95,7 +84,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Your Stall",
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
